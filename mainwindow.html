@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Oreo Message Parser</title>
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="materialize/css/materialize.min.css"  media="screen,projection"/>
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style>
+      nav {
+        height: 50px;
+        line-height: 50px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <nav>
+      <div class="nav-wrapper brown darken-3">
+        <a class="brand-logo center" style="height:10">Oreo Viewer</a>
+      </div>
+    </nav>
+    <p></p><p></p><p></p>
+
+    <div class="row">
+      <form class="col s12">
+        <div class="row">
+          <div class="input-field col s6">
+            <input id="message" type="text">
+          </div>
+          <div class="input-field col s6">
+            <button class="btn waves-effect waves-light teal darken-3" type="submit" name="action">
+              Submit
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="row">
+      <div class="col s12">
+        <ul>
+        </ul>
+      </div>
+    </div>
+
+    <script>
+      /* declare */
+      const electron = require('electron');
+      const { ipcRenderer } = electron;
+      const ul = document.querySelector('ul');
+
+      /* action for push button submit */
+      const form = document.querySelector('form');
+      form.addEventListener('submit', submitMessage);
+
+      /* action for submit */
+      function submitMessage(e) {
+        e.preventDefault();
+        
+        /* clear screen */
+        ul.innerHTML = '';
+        ul.className = '';
+
+        ul.className = 'collection';
+        const li = document.createElement('li');
+        li.className = 'collection-item';
+
+        const item = document.querySelector('#message').value;
+
+        /* check empty input */
+        if (item.length === 0 || item.trim().length === 0) {
+          // ul.className = 'collection';
+          // const li = document.createElement('li');
+          // li.className = 'collection-item';
+          const itemText = document.createTextNode('Input is empty');
+          li.appendChild(itemText);
+          ul.appendChild(li); 
+          return;
+        }
+
+        /* Print test log */
+        // ul.className = 'collection';
+        // const li = document.createElement('li');
+        // li.className = 'collection-item';
+        const itemText = document.createTextNode(item);
+        li.appendChild(itemText);
+        ul.appendChild(li); 
+
+        /* send data to index.js */
+        ipcRenderer.send('message:send', item);
+      }
+
+      /* receive from js and print data */
+      ipcRenderer.on('message:print', (e, item) => {
+        ul.className = 'collection';
+        const li = document.createElement('li');
+        li.className = 'collection-item';
+        const itemText = document.createTextNode(item);
+        li.appendChild(itemText);
+        ul.appendChild(li);
+      });
+
+    </script>
+
+  </body>
+</html>
